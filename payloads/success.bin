@@ -1,0 +1,4 @@
+FUSEE_GELEE_SUCCESS_PAYLOAD
+This is a demonstration payload for educational purposes.
+In a real implementation, this would contain ARM64 machine code
+that initializes the display and shows a success image.
