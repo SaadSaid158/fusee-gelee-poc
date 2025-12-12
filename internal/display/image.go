@@ -2,6 +2,7 @@ package display
 
 import (
 	"embed"
+	"encoding/binary"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -85,7 +86,7 @@ func generateBasicPayload() []byte {
 		// - Framebuffer setup code
 		// - Drawing routines
 		// - Color data
-		0x580000A0, // LDR X0, #20 (load register base address)
+		0x580000A0, // LDR X0, #0x140 (load register base address)
 		0xD2800001, // MOV X1, #0 (value to write)
 		0xF9000001, // STR X1, [X0] (write to register)
 		0x14000000, // B . (infinite loop)
@@ -94,10 +95,7 @@ func generateBasicPayload() []byte {
 	// Write instructions to payload
 	offset := 0
 	for _, instr := range instructions {
-		payload[offset] = byte(instr)
-		payload[offset+1] = byte(instr >> 8)
-		payload[offset+2] = byte(instr >> 16)
-		payload[offset+3] = byte(instr >> 24)
+		binary.LittleEndian.PutUint32(payload[offset:], instr)
 		offset += 4
 	}
 

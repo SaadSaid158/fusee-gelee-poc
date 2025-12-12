@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/SaadSaid158/fusee-gelee-poc/internal/display"
 	"github.com/SaadSaid158/fusee-gelee-poc/internal/exploit"
@@ -71,6 +70,4 @@ func main() {
 	fmt.Println("🎉 If successful, you should see a success image on the device screen!")
 	fmt.Println()
 	fmt.Println("Stay curious, stay ethical! 🔐")
-
-	os.Exit(0)
 }

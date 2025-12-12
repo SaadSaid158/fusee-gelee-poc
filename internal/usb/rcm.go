@@ -31,9 +31,7 @@ type Context struct {
 
 // Device represents a Tegra device in RCM mode
 type Device struct {
-	dev      *gousb.Device
-	handle   *gousb.Device
-	endpoint *gousb.InEndpoint
+	dev *gousb.Device
 }
 
 // NewContext creates a new USB context
@@ -57,23 +55,15 @@ func (c *Context) FindRCMDevice() (*Device, error) {
 	// Set auto-detach kernel driver
 	dev.SetAutoDetach(true)
 
-	// Claim the RCM interface
-	_, err = dev.OpenEndpoint(1, 0, 0, RCMEndpoint)
-	if err != nil {
-		dev.Close()
-		return nil, fmt.Errorf("failed to claim RCM interface: %v", err)
-	}
-
 	return &Device{
-		dev:    dev,
-		handle: dev,
+		dev: dev,
 	}, nil
 }
 
 // Close closes the device
 func (d *Device) Close() {
-	if d.handle != nil {
-		d.handle.Close()
+	if d.dev != nil {
+		d.dev.Close()
 	}
 }
 
@@ -82,8 +72,8 @@ func (d *Device) String() string {
 	if d.dev != nil {
 		desc, _ := d.dev.Desc()
 		return fmt.Sprintf("Tegra X1 (Bus %03d Device %03d: ID %04x:%04x)",
-			d.dev.Desc().Bus,
-			d.dev.Desc().Address,
+			desc.Bus,
+			desc.Address,
 			desc.Vendor,
 			desc.Product)
 	}
@@ -102,7 +92,7 @@ func (d *Device) ReadDeviceID() ([]byte, error) {
 	value := uint16(0)
 	index := uint16(0)
 
-	n, err := d.handle.Control(reqType, request, value, index, buffer)
+	n, err := d.dev.Control(reqType, request, value, index, buffer)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read device ID: %v", err)
 	}
@@ -132,7 +122,7 @@ func (d *Device) TriggerExploit(payload []byte) error {
 
 	// Send the actual payload via bulk transfer
 	// The length field in the setup packet will be manipulated to cause overflow
-	_, err := d.handle.Control(reqType, request, value, index, payload)
+	_, err := d.dev.Control(reqType, request, value, index, payload)
 	if err != nil {
 		// An error here might actually indicate success since we're crashing the bootrom
 		// and taking control - but we'll return it for now
@@ -151,5 +141,5 @@ func (d *Device) WriteBulk(data []byte) (int, error) {
 	value := uint16(0)
 	index := uint16(0)
 
-	return d.handle.Control(reqType, request, value, index, data)
+	return d.dev.Control(reqType, request, value, index, data)
 }
