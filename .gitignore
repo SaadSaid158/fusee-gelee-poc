@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-fusee-gelee
+/fusee-gelee
 
 # Test binary, built with `go test -c`
 *.test
